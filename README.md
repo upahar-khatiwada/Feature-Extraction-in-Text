@@ -34,14 +34,21 @@ libraries are used.
   - `n_grams(tokens, n)` — generates a list of n-grams (tuples of `n`
     consecutive tokens); works for any `n`, including bigrams and trigrams
 
-- `main.py` — a small hardcoded corpus (5-6 sentences) that runs the full
-  pipeline end to end and prints the tokenized documents, vocabulary, bag of
-  words, TF-IDF table, and a bigram/trigram example.
+- `main.py` — runs the full pipeline end to end and prints the tokenized
+  documents, vocabulary, bag of words, TF-IDF table, and a bigram/trigram
+  example. Uses a small hardcoded corpus (5-6 sentences) by default, or reads
+  documents from a CSV file if one is given on the command line.
 
 ## How to run
 
 ```
 python main.py
+```
+
+To run on your own documents instead, pass a CSV file with a `text` column:
+
+```
+python main.py path/to/documents.csv
 ```
 
 Requires only `numpy` and `pandas` to be installed.

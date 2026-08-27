@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 
 from preprocessing import preprocess
@@ -5,7 +7,7 @@ from features import build_vocabulary, bag_of_words, binary_bow, tf_idf, n_grams
 
 pd.set_option("display.width", 120)
 
-corpus = [
+default_corpus = [
     "The cat sat on the mat and looked at the dog.",
     "Dogs are running quickly in the park every morning.",
     "The quick brown fox jumps over the lazy dog.",
@@ -13,6 +15,14 @@ corpus = [
     "She quickly finished reading the interesting book.",
     "The park was full of happy dogs and playful cats.",
 ]
+
+if len(sys.argv) > 1:
+    csv_path = sys.argv[1]
+    data = pd.read_csv(csv_path)
+    corpus = data["text"].tolist()
+    print(f"Loaded {len(corpus)} documents from {csv_path}")
+else:
+    corpus = default_corpus
 
 print("=== Raw corpus ===")
 for i, doc in enumerate(corpus):
