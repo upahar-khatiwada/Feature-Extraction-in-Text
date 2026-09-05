@@ -2,8 +2,28 @@ import sys
 
 import pandas as pd
 
-from preprocessing import preprocess
-from features import build_vocabulary, bag_of_words, binary_bow, tf_idf, n_grams
+from preprocessing import (
+    preprocess,
+    lowercase,
+    remove_punctuation_and_numbers,
+    tokenize,
+    remove_stopwords,
+    stem_word,
+)
+from features import (
+    build_vocabulary,
+    bag_of_words,
+    binary_bow,
+    tf_idf,
+    n_grams,
+    one_hot_encode_tokens,
+    one_hot_encode_categories,
+)
+from linguistic_features import (
+    pos_tag,
+    morphological_analysis,
+    lemmatize_word,
+)
 
 pd.set_option("display.width", 120)
 
@@ -53,3 +73,29 @@ print(tfidf_df.round(3))
 print("\n=== N-gram example (Doc 0) ===")
 print("Bigrams:", n_grams(processed_docs[0], 2))
 print("Trigrams:", n_grams(processed_docs[0], 3))
+
+# POS tagging, morphological analysis, and lemmatization work best on tokens
+# that still have their original word forms and function words, so they run
+# on lightly cleaned tokens rather than the stemmed/stopword-free ones above.
+raw_tokens_doc0 = tokenize(remove_punctuation_and_numbers(lowercase(corpus[0])))
+
+print("\n=== POS Tagging (Doc 0) ===")
+tagged_doc0 = pos_tag(raw_tokens_doc0)
+for word, tag in tagged_doc0:
+    print(f"{word:12s} -> {tag}")
+
+print("\n=== Morphological Analysis (Doc 0) ===")
+print(morphological_analysis(raw_tokens_doc0))
+
+print("\n=== Lemmatization vs. Stemming (Doc 0, stopwords removed) ===")
+filtered_doc0 = remove_stopwords(raw_tokens_doc0)
+print(f"{'word':12s} {'stem':12s} {'lemma':12s}")
+for word in filtered_doc0:
+    print(f"{word:12s} {stem_word(word):12s} {lemmatize_word(word):12s}")
+
+print("\n=== One-hot Encoding (tokens, Doc 0) ===")
+print(one_hot_encode_tokens(processed_docs[0], vocab))
+
+print("\n=== One-hot Encoding (POS tags, Doc 0) ===")
+pos_tags_doc0 = [tag for _, tag in tagged_doc0]
+print(one_hot_encode_categories(pos_tags_doc0))

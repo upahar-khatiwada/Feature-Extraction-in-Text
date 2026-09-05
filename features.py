@@ -55,6 +55,27 @@ def tf_idf(docs, vocab):
     return pd.DataFrame(scores, columns=vocab)
 
 
+def one_hot_encode_tokens(tokens, vocab):
+    # One-hot vector per token position (sequence-style encoding), as
+    # opposed to binary_bow which gives one vector per whole document.
+    vocab_index = {word: i for i, word in enumerate(vocab)}
+    vectors = np.zeros((len(tokens), len(vocab)), dtype=int)
+    for row, word in enumerate(tokens):
+        if word in vocab_index:
+            vectors[row, vocab_index[word]] = 1
+    return pd.DataFrame(vectors, columns=vocab)
+
+
+def one_hot_encode_categories(categories):
+    # Generic one-hot encoder for any list of category labels, e.g. POS tags.
+    labels = sorted(set(categories))
+    label_index = {label: i for i, label in enumerate(labels)}
+    matrix = np.zeros((len(categories), len(labels)), dtype=int)
+    for row, category in enumerate(categories):
+        matrix[row, label_index[category]] = 1
+    return pd.DataFrame(matrix, columns=labels)
+
+
 def n_grams(tokens, n):
     grams = []
     for i in range(len(tokens) - n + 1):
