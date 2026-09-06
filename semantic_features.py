@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -26,3 +27,19 @@ def semantic_category_features(tokens):
 def semantic_feature_matrix(documents):
     """Return semantic category counts with one row for each document."""
     return pd.DataFrame([semantic_category_features(tokens) for tokens in documents])
+
+
+def cosine_similarity_matrix(feature_matrix):
+    """Calculate pairwise cosine similarity for document feature vectors."""
+    vectors = np.asarray(feature_matrix, dtype=float)
+    dot_products = vectors @ vectors.T
+    norms = np.linalg.norm(vectors, axis=1)
+    denominators = np.outer(norms, norms)
+    scores = np.divide(
+        dot_products,
+        denominators,
+        out=np.zeros_like(dot_products),
+        where=denominators != 0,
+    )
+    labels = [f"doc_{index}" for index in range(len(vectors))]
+    return pd.DataFrame(scores, index=labels, columns=labels)
