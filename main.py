@@ -24,6 +24,7 @@ from linguistic_features import (
     morphological_analysis,
     lemmatize_word,
 )
+from syntactic_features import syntactic_analysis
 
 pd.set_option("display.width", 120)
 
@@ -83,6 +84,9 @@ print("\n=== POS Tagging (Doc 0) ===")
 tagged_doc0 = pos_tag(raw_tokens_doc0)
 for word, tag in tagged_doc0:
     print(f"{word:12s} -> {tag}")
+
+print("\n=== Syntactic Features (Doc 0) ===")
+print(syntactic_analysis(tagged_doc0))
 
 print("\n=== Morphological Analysis (Doc 0) ===")
 print(morphological_analysis(raw_tokens_doc0))
