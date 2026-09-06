@@ -25,6 +25,7 @@ from linguistic_features import (
     lemmatize_word,
 )
 from syntactic_features import syntactic_analysis, syntactic_feature_matrix
+from semantic_features import semantic_feature_matrix
 
 pd.set_option("display.width", 120)
 
@@ -94,6 +95,13 @@ tagged_documents = [
 ]
 print("\n=== Syntactic Feature Matrix ===")
 print(syntactic_feature_matrix(tagged_documents))
+
+lightly_cleaned_documents = [
+    tokenize(remove_punctuation_and_numbers(lowercase(doc)))
+    for doc in corpus
+]
+print("\n=== Semantic Feature Matrix ===")
+print(semantic_feature_matrix(lightly_cleaned_documents))
 
 print("\n=== Morphological Analysis (Doc 0) ===")
 print(morphological_analysis(raw_tokens_doc0))
