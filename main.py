@@ -25,7 +25,7 @@ from linguistic_features import (
     lemmatize_word,
 )
 from syntactic_features import syntactic_analysis, syntactic_feature_matrix
-from semantic_features import semantic_feature_matrix
+from semantic_features import cosine_similarity_matrix, semantic_feature_matrix
 
 pd.set_option("display.width", 120)
 
@@ -71,6 +71,9 @@ print(binary_df)
 tfidf_df = tf_idf(processed_docs, vocab)
 print("\n=== TF-IDF ===")
 print(tfidf_df.round(3))
+
+print("\n=== Semantic Similarity (TF-IDF Cosine) ===")
+print(cosine_similarity_matrix(tfidf_df).round(3))
 
 print("\n=== N-gram example (Doc 0) ===")
 print("Bigrams:", n_grams(processed_docs[0], 2))
