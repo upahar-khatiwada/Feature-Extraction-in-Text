@@ -3,9 +3,9 @@
 A small hand-built pipeline that turns raw text documents into numerical
 features. All text-processing and feature-extraction logic (tokenizing,
 stopword removal, stemming, lemmatization, POS tagging, morphological
-analysis, bag-of-words, one-hot encoding, TF-IDF, n-grams) is written from
-scratch using only `numpy` and `pandas`. No scikit-learn, nltk, spaCy, or
-similar libraries are used.
+analysis, syntactic features, semantic features, bag-of-words, one-hot
+encoding, TF-IDF, n-grams) is written from scratch using only `numpy` and
+`pandas`. No scikit-learn, nltk, spaCy, or similar libraries are used.
 
 ## Files
 
@@ -49,17 +49,33 @@ similar libraries are used.
   - `n_grams(tokens, n)` — generates a list of n-grams (tuples of `n`
     consecutive tokens); works for any `n`, including bigrams and trigrams
   - `one_hot_encode_tokens(tokens, vocab)` — one-hot vector per token
-    *position* in a sequence (as opposed to `binary_bow`, which gives one
+    _position_ in a sequence (as opposed to `binary_bow`, which gives one
     vector per whole document)
   - `one_hot_encode_categories(categories)` — generic one-hot encoder for
     any list of category labels, e.g. POS tags
 
+- `syntactic_features.py` — heuristic sentence-structure features
+  - `subject_verb_object(tagged_tokens)` — extracts simple subject, verb, and
+    object candidates using POS tags and their order in the sentence
+  - `syntactic_analysis(tagged_tokens)` — returns the candidate words plus
+    token, noun, verb, and complete-SVO counts for one document
+  - `syntactic_feature_matrix(tagged_documents)` — returns numeric syntactic
+    features with one row per document
+
+- `semantic_features.py` — lexical semantic features and document similarity
+  - `semantic_category_features(tokens)` — counts words in the hand-written
+    categories `action`, `animal`, `place`, and `positive_description`
+  - `semantic_feature_matrix(documents)` — returns category counts with one
+    row per document
+  - `cosine_similarity_matrix(feature_matrix)` — returns pairwise cosine
+    similarity between document vectors, used here with TF-IDF vectors
+
 - `main.py` — runs the full pipeline end to end and prints the tokenized
   documents, vocabulary, bag of words, TF-IDF table, a bigram/trigram
-  example, POS tags, morphological features, a lemma-vs-stem comparison, and
-  one-hot encodings (of tokens and of POS tags). Uses a small hardcoded
-  corpus (5-6 sentences) by default, or reads documents from a CSV file if
-  one is given on the command line.
+  example, POS tags, syntactic features, semantic features, morphological
+  features, a lemma-vs-stem comparison, and one-hot encodings (of tokens and
+  of POS tags). Uses a small hardcoded corpus (5-6 sentences) by default, or
+  reads documents from a CSV file if one is given on the command line.
 
 ## How to run
 
@@ -74,3 +90,11 @@ python main.py path/to/documents.csv
 ```
 
 Requires only `numpy` and `pandas` to be installed.
+
+## Limitations
+
+The syntactic extractor is a position-based SVO heuristic, not a dependency
+parser. The semantic features use a small hand-written lexicon, so words that
+are not listed in a category receive no category count. TF-IDF cosine
+similarity measures shared weighted vocabulary rather than full contextual
+meaning.

@@ -150,6 +150,41 @@ trigram is `n = 3` (triples of words). They're built with a sliding window
 over the token list: for each position `i`, take the tokens from `i` to
 `i + n`.
 
+## 11. Syntactic Features
+
+Syntax describes how words are arranged into a sentence. This project extracts
+a simple subject-verb-object (SVO) pattern from the POS-tagged tokens. It
+chooses the first noun or pronoun before the first verb as the subject, the
+first verb or auxiliary as the verb, and the first noun or pronoun after that
+verb as the object. It also produces a numeric feature row for each document:
+token count, noun count, verb count, and whether all three SVO elements were
+found.
+
+For example, for `The cat chased the mouse`, the heuristic returns `cat` as
+the subject, `chased` as the verb, and `mouse` as the object. This is a
+position-based heuristic, not a full dependency parser, so its correctness
+depends on the rule-based POS tags and it cannot resolve every sentence form.
+
+## 12. Semantic Features
+
+Semantic features represent meaning. A small hand-written lexicon assigns
+known words to four categories: `action`, `animal`, `place`, and
+`positive_description`. For each document, the project counts how many tokens
+belong to each category. For example, `Happy dogs run in the park` contributes
+one word to each category: `happy`, `dogs`, `run`, and `park`.
+
+The project also compares the overall semantic relatedness of documents with
+cosine similarity applied to their TF-IDF vectors:
+
+```
+similarity(A, B) = (A . B) / (||A|| * ||B||)
+```
+
+The result ranges from 0 for no weighted vocabulary overlap to 1 for identical
+nonzero vectors. This is a lexical measure of similarity, rather than a
+contextual embedding model, but it provides a useful semantic comparison
+without external NLP libraries.
+
 ## Summary
 
 The overall pipeline is:
@@ -157,12 +192,14 @@ The overall pipeline is:
 ```
 raw text -> lowercase -> remove punctuation/numbers -> tokenize
          -> remove stopwords -> stem/lemmatize
-         -> [POS tagging / morphological analysis on the side]
+         -> [POS tagging / morphology / syntax / semantic categories]
          -> feature extraction (BoW / one-hot / TF-IDF / n-grams)
+         -> TF-IDF cosine similarity between documents
 ```
 
-POS tagging and morphological analysis run on the lightly cleaned tokens
-(before stopword removal and stemming), since function words and full word
-forms carry the grammatical signal those steps depend on. Each step reduces
-noise or adds structure, turning unstructured text into a numeric form that
-can be compared, counted, and eventually fed into a model.
+POS tagging, morphological analysis, syntactic analysis, and semantic category
+analysis run on lightly cleaned tokens (before stopword removal and stemming),
+since function words and full word forms carry the grammatical and lexical
+signals those steps depend on. Each step reduces noise or adds structure,
+turning unstructured text into a numeric form that can be compared, counted,
+and eventually fed into a model.
