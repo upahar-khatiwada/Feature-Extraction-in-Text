@@ -43,3 +43,12 @@ def syntactic_analysis(tagged_tokens):
         "verb_count": sum(tag in VERBAL_TAGS for tag in tags),
         "has_subject_verb_object": all(structure.values()),
     }])
+
+
+def syntactic_feature_matrix(tagged_documents):
+    """Return numeric syntactic features with one row for each document."""
+    feature_rows = []
+    for tagged_tokens in tagged_documents:
+        analysis = syntactic_analysis(tagged_tokens)
+        feature_rows.append(analysis.drop(columns=["subject", "verb", "object"]))
+    return pd.concat(feature_rows, ignore_index=True)
