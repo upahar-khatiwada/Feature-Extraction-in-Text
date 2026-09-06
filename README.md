@@ -75,14 +75,30 @@ encoding, TF-IDF, n-grams) is written from scratch using only `numpy` and
   documents, vocabulary, bag of words, TF-IDF table, a bigram/trigram
   example, POS tags, syntactic features, semantic features, morphological
   features, a lemma-vs-stem comparison, and one-hot encodings (of tokens and
-  of POS tags). Uses a small hardcoded corpus (5-6 sentences) by default, or
-  reads documents from a CSV file if one is given on the command line.
+  of POS tags). Uses `hackernews_dataset.csv` by default if that file exists
+  (see `scrape_hackernews.py` below), otherwise falls back to a small
+  hardcoded corpus (5-6 sentences), or reads documents from a CSV file if
+  one is given on the command line.
+
+- `scrape_hackernews.py` — pulls real story titles/text from Hacker News's
+  public API (no account or key needed) into a `text`-column CSV:
+  `python scrape_hackernews.py --count 50 --out hackernews_dataset.csv`
+
+- `scrape_reddit.py` — pulls post text from a subreddit via Reddit's OAuth
+  API. Reddit blocks unauthenticated `.json` scraping, so this needs a free
+  "script" app (client_id/client_secret from
+  https://www.reddit.com/prefs/apps), read from the `REDDIT_CLIENT_ID` /
+  `REDDIT_CLIENT_SECRET` environment variables or prompted for securely.
 
 ## How to run
 
 ```
 python main.py
 ```
+
+This automatically uses `hackernews_dataset.csv` if present (run
+`scrape_hackernews.py` first to generate it), otherwise falls back to the
+built-in demo corpus.
 
 To run on your own documents instead, pass a CSV file with a `text` column:
 
