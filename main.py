@@ -24,7 +24,7 @@ from linguistic_features import (
     morphological_analysis,
     lemmatize_word,
 )
-from syntactic_features import syntactic_analysis
+from syntactic_features import syntactic_analysis, syntactic_feature_matrix
 
 pd.set_option("display.width", 120)
 
@@ -87,6 +87,13 @@ for word, tag in tagged_doc0:
 
 print("\n=== Syntactic Features (Doc 0) ===")
 print(syntactic_analysis(tagged_doc0))
+
+tagged_documents = [
+    pos_tag(tokenize(remove_punctuation_and_numbers(lowercase(doc))))
+    for doc in corpus
+]
+print("\n=== Syntactic Feature Matrix ===")
+print(syntactic_feature_matrix(tagged_documents))
 
 print("\n=== Morphological Analysis (Doc 0) ===")
 print(morphological_analysis(raw_tokens_doc0))
