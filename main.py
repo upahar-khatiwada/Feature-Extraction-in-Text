@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import pandas as pd
 
@@ -40,6 +41,13 @@ default_corpus = [
 
 if len(sys.argv) > 1:
     csv_path = sys.argv[1]
+    data = pd.read_csv(csv_path)
+    corpus = data["text"].tolist()
+    print(f"Loaded {len(corpus)} documents from {csv_path}")
+elif Path("hackernews_dataset.csv").exists():
+    # Real data scraped by scrape_hackernews.py, used automatically when
+    # present so the pipeline runs on live text by default.
+    csv_path = "hackernews_dataset.csv"
     data = pd.read_csv(csv_path)
     corpus = data["text"].tolist()
     print(f"Loaded {len(corpus)} documents from {csv_path}")
