@@ -35,12 +35,18 @@ noun, verb, adjective, determiner, and so on. Knowing that "dogs" is a noun
 and "running" is a verb captures information that a plain bag of words
 throws away. This project uses a rule-based tagger: a small hand-written
 lexicon covers closed-class words that must be memorized (determiners like
-"the", pronouns, prepositions, conjunctions, auxiliary verbs), and suffix
-rules cover open-class words (`-ly` -> adverb, `-ing`/`-ed` -> verb,
-`-ful`/`-ous`/`-ive` -> adjective, `-tion`/`-ness`/`-ity` -> noun), with noun
-as the default guess. It won't resolve genuinely ambiguous words (e.g.
-"sat" being tagged as a noun instead of a verb, since it doesn't match any
-lexicon entry or suffix rule), but it's cheap and needs no training data.
+"the", pronouns, prepositions, conjunctions, auxiliary verbs, and common
+descriptive adjectives like "quick" or "happy"), and suffix rules cover
+open-class words (`-ly` -> adverb, `-ing`/`-ed` -> verb, `-ful`/`-ous`/`-ive`
+-> adjective, `-tion`/`-ness`/`-ity` -> noun), with noun as the default guess.
+Small exception tables also cover cases the suffix rules get wrong on their
+own: irregular verbs with no `-ed`/`-ing` ending (e.g. "sat" -> verb, not the
+default noun), present-tense "-s" verbs like "jumps" (checked against a list
+of common verb stems so plural nouns like "dogs" aren't misread as verbs),
+and ambiguous `-ing` words that are actually nouns or adjectives ("morning" ->
+noun, "interesting" -> adjective, instead of the generic "-ing" -> verb
+rule). It still won't resolve every genuinely ambiguous word, but it's cheap
+and needs no training data.
 
 ## 5. Morphological Analysis
 
@@ -168,10 +174,15 @@ depends on the rule-based POS tags and it cannot resolve every sentence form.
 ## 12. Semantic Features
 
 Semantic features represent meaning. A small hand-written lexicon assigns
-known words to four categories: `action`, `animal`, `place`, and
-`positive_description`. For each document, the project counts how many tokens
-belong to each category. For example, `Happy dogs run in the park` contributes
-one word to each category: `happy`, `dogs`, `run`, and `park`.
+known words to six categories: `action`, `animal`, `place`, `object`,
+`positive_description` (clearly positive words like "happy" or "popular"),
+and `descriptive` (other neutral descriptive words like "quick" or "lazy").
+Words are assigned by meaning rather than by suffix, so, for example, "mat"
+is counted as an `object` rather than a `place`. For each document, the
+project counts how many tokens belong to each category. For example,
+`Happy dogs run in the park` contributes one word to each of `action`,
+`animal`, `place`, and `positive_description`: `run`, `dogs`, `park`, and
+`happy`.
 
 The project also compares the overall semantic relatedness of documents with
 cosine similarity applied to their TF-IDF vectors:

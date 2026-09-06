@@ -64,7 +64,8 @@ encoding, TF-IDF, n-grams) is written from scratch using only `numpy` and
 
 - `semantic_features.py` — lexical semantic features and document similarity
   - `semantic_category_features(tokens)` — counts words in the hand-written
-    categories `action`, `animal`, `place`, and `positive_description`
+    categories `action`, `animal`, `place`, `object`, `positive_description`,
+    and `descriptive`
   - `semantic_feature_matrix(documents)` — returns category counts with one
     row per document
   - `cosine_similarity_matrix(feature_matrix)` — returns pairwise cosine
