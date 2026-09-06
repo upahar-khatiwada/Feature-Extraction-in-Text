@@ -8,9 +8,14 @@ SEMANTIC_LEXICON = {
         "read", "reading", "run", "running", "sat", "wandered",
     },
     "animal": {"cat", "cats", "dog", "dogs", "fox", "mice", "mouse"},
-    "place": {"forest", "mat", "park", "world"},
-    "positive_description": {
-        "happy", "interesting", "playful", "popular", "quick", "quickly", "quiet",
+    # "mat" is an object, not a place, so it lives in "object" instead.
+    "place": {"forest", "park", "world"},
+    "object": {"mat", "book"},
+    # Words with clearly positive connotation.
+    "positive_description": {"happy", "interesting", "playful", "popular"},
+    # Other descriptive adjectives that aren't inherently positive/negative.
+    "descriptive": {
+        "quick", "quickly", "quiet", "lazy", "brown", "full", "young", "curious",
     },
 }
 

@@ -72,7 +72,9 @@ tfidf_df = tf_idf(processed_docs, vocab)
 print("\n=== TF-IDF ===")
 print(tfidf_df.round(3))
 
-print("\n=== Semantic Similarity (TF-IDF Cosine) ===")
+# This measures lexical/statistical overlap between TF-IDF vectors, not
+# true deep semantic understanding (no embeddings or contextual meaning).
+print("\n=== Lexical/Statistical Similarity (TF-IDF Cosine) ===")
 print(cosine_similarity_matrix(tfidf_df).round(3))
 
 print("\n=== N-gram example (Doc 0) ===")
@@ -103,7 +105,7 @@ lightly_cleaned_documents = [
     tokenize(remove_punctuation_and_numbers(lowercase(doc)))
     for doc in corpus
 ]
-print("\n=== Semantic Feature Matrix ===")
+print("\n=== Semantic Feature Matrix (Rule-Based Lexical Categories) ===")
 print(semantic_feature_matrix(lightly_cleaned_documents))
 
 print("\n=== Morphological Analysis (Doc 0) ===")

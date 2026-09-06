@@ -13,7 +13,7 @@ POS_LEXICON = {
     "PREP": {
         "of", "in", "on", "at", "by", "for", "with", "about", "against",
         "between", "into", "through", "during", "to", "from", "up",
-        "down", "out", "off", "over", "under",
+        "down", "out", "off", "over", "under", "around",
     },
     "CONJ": {"and", "or", "but", "if", "then", "so", "than", "nor", "as"},
     "AUX": {
@@ -21,11 +21,80 @@ POS_LEXICON = {
         "do", "does", "did", "doing",
         "have", "has", "had", "having",
     },
+    # Common descriptive adjectives that don't match any suffix rule below.
+    "ADJ": {
+        "quick", "brown", "lazy", "popular", "full", "happy", "quiet", "young",
+    },
 }
 
 NOUN_SUFFIXES = ("tion", "sion", "ment", "ness", "ity", "ism", "ist")
 ADJ_SUFFIXES = ("ful", "ous", "ive", "able", "ible", "al", "ic")
 VERB_SUFFIXES = ("ing", "ed")
+
+# Irregular verb forms that no suffix rule can recover (unlike "looked" or
+# "wandered", words like "sat" carry no -ed/-ing ending to key off of).
+IRREGULAR_VERB_FORMS = {
+    "sat": "sit", "ate": "eat", "saw": "see", "ran": "run", "went": "go",
+    "came": "come", "gave": "give", "took": "take", "found": "find",
+    "made": "make", "said": "say", "stood": "stand", "held": "hold",
+    "left": "leave", "met": "meet", "sang": "sing", "swam": "swim",
+    "won": "win", "knew": "know", "threw": "throw", "grew": "grow",
+    "flew": "fly", "wore": "wear", "broke": "break", "chose": "choose",
+    "drove": "drive", "rode": "ride", "wrote": "write", "spoke": "speak",
+}
+
+# Common verb base forms, used to recognize present-tense "-s"/"-es" verbs
+# (e.g. "jumps") without misreading plural nouns like "dogs" as verbs.
+COMMON_VERB_STEMS = {
+    "jump", "look", "chase", "run", "sit", "walk", "talk", "read", "write",
+    "find", "finish", "wander", "stand", "play", "bark", "laugh", "smile",
+    "climb", "swim", "fly", "cook", "clean", "paint", "dance", "sing",
+    "kick", "push", "pull", "open", "close", "move", "stop", "start",
+    "help", "watch", "listen", "eat", "drink", "sleep", "work", "live",
+    "love", "like", "want", "need", "know", "think", "see", "hear",
+    "feel", "grow", "fall", "rise", "wait",
+}
+
+# Words ending in "-ing" that are actually nouns or adjectives, not verbs
+# (a plain suffix rule can't tell "morning" from "running").
+ING_EXCEPTIONS = {
+    "morning": "NOUN", "evening": "NOUN", "building": "NOUN",
+    "meeting": "NOUN", "feeling": "NOUN", "painting": "NOUN",
+    "wedding": "NOUN", "ceiling": "NOUN",
+    "interesting": "ADJ", "exciting": "ADJ", "boring": "ADJ",
+    "amazing": "ADJ", "annoying": "ADJ", "fascinating": "ADJ",
+    "surprising": "ADJ", "confusing": "ADJ", "tiring": "ADJ",
+    "charming": "ADJ",
+}
+NOUN_ING_WORDS = {word for word, tag in ING_EXCEPTIONS.items() if tag == "NOUN"}
+
+# Common "-er"/"-est" words that are not comparative/superlative adjectives.
+NON_COMPARATIVE_ER_WORDS = {
+    "over", "under", "water", "summer", "winter", "letter", "matter",
+    "paper", "proper", "other", "after", "enter", "offer", "order",
+    "power", "number", "weather", "master", "sister", "brother",
+    "mother", "father", "teacher", "dinner", "corner", "answer",
+    "member", "finger", "river",
+}
+NON_SUPERLATIVE_EST_WORDS = {
+    "forest", "interest", "honest", "harvest", "modest", "protest", "request",
+}
+
+
+def _verb_stem_candidates(lower):
+    """Return possible base-verb forms for a present-tense "-s" word."""
+    candidates = []
+    if lower.endswith("ies") and len(lower) > 4:
+        candidates.append(lower[:-3] + "y")
+    if lower.endswith("es") and len(lower) > 4:
+        candidates.append(lower[:-2])
+    if lower.endswith("s") and not lower.endswith("ss") and len(lower) > 3:
+        candidates.append(lower[:-1])
+    return candidates
+
+
+def _is_verb_like_s_form(lower):
+    return any(stem in COMMON_VERB_STEMS for stem in _verb_stem_candidates(lower))
 
 # Common irregular forms that no suffix rule can recover.
 IRREGULAR_LEMMAS = {
@@ -54,9 +123,16 @@ def pos_tag_word(word):
         if lower in words:
             return tag
 
+    if lower in IRREGULAR_VERB_FORMS:
+        return "VERB"
+    if lower in ING_EXCEPTIONS:
+        return ING_EXCEPTIONS[lower]
+
     if lower.endswith("ly") and len(lower) > 4:
         return "ADV"
     if lower.endswith(VERB_SUFFIXES) and len(lower) > 4:
+        return "VERB"
+    if _is_verb_like_s_form(lower):
         return "VERB"
     if lower.endswith(ADJ_SUFFIXES):
         return "ADJ"
@@ -124,6 +200,24 @@ def morphological_features(word):
     shape (prefix/suffix, capitalization, vowel/consonant counts) and
     simple inflection flags (plural, gerund, past tense, etc.)."""
     lower = word.lower()
+    is_plural = (
+        lower.endswith("s") and not lower.endswith("ss") and len(lower) > 3
+        and not _is_verb_like_s_form(lower)
+    )
+    is_gerund = (
+        lower.endswith("ing") and len(lower) > 4 and lower not in NOUN_ING_WORDS
+    )
+    is_past_tense = (
+        lower.endswith("ed") and len(lower) > 3
+    ) or lower in IRREGULAR_VERB_FORMS
+    is_comparative = (
+        lower.endswith("er") and len(lower) > 4
+        and lower not in NON_COMPARATIVE_ER_WORDS
+    )
+    is_superlative = (
+        lower.endswith("est") and len(lower) > 5
+        and lower not in NON_SUPERLATIVE_EST_WORDS
+    )
     return {
         "word": word,
         "length": len(word),
@@ -132,11 +226,11 @@ def morphological_features(word):
         "prefix3": lower[:3],
         "suffix3": lower[-3:],
         "is_capitalized": word[:1].isupper(),
-        "is_plural": lower.endswith("s") and not lower.endswith("ss") and len(lower) > 3,
-        "is_gerund": lower.endswith("ing") and len(lower) > 4,
-        "is_past_tense": lower.endswith("ed") and len(lower) > 3,
-        "is_comparative": lower.endswith("er") and len(lower) > 4,
-        "is_superlative": lower.endswith("est") and len(lower) > 5,
+        "is_plural": is_plural,
+        "is_gerund": is_gerund,
+        "is_past_tense": is_past_tense,
+        "is_comparative": is_comparative,
+        "is_superlative": is_superlative,
     }
 
 
