@@ -2,6 +2,10 @@ import numpy as np
 import pandas as pd
 
 
+# Covers the vocabulary of both this project's corpora: the animal/nature
+# sentences in demo.csv (action, animal, place, object, descriptive) and the
+# tech news story titles/text in hackernews_dataset.csv (technology, ai,
+# business, science). positive_description is shared by both.
 SEMANTIC_LEXICON = {
     "action": {
         "chase", "chased", "finish", "finished", "jump", "jumps", "look", "looked",
@@ -11,9 +15,38 @@ SEMANTIC_LEXICON = {
     # "mat" is an object, not a place, so it lives in "object" instead.
     "place": {"forest", "park", "world"},
     "object": {"mat", "book"},
-    # Words with clearly positive connotation.
-    "positive_description": {"happy", "interesting", "playful", "popular"},
-    # Other descriptive adjectives that aren't inherently positive/negative.
+    "technology": {
+        "software", "code", "coding", "codebase", "app", "apps", "docker",
+        "kernel", "linux", "macos", "windows", "github", "api", "browser",
+        "editor", "terminal", "markdown", "compiler", "rust", "python",
+        "hardware", "computer", "website", "cli", "sandbox", "dns", "ssh",
+    },
+    "ai": {
+        "ai", "llm", "llms", "chatgpt", "claude", "gpt", "model", "models",
+        "agent", "agents", "artificial", "intelligence",
+    },
+    "business": {
+        "startup", "startups", "company", "companies", "market", "economy",
+        "economics", "fund", "currency", "pioneer", "product", "customer",
+    },
+    "science": {
+        "quantum", "physics", "protein", "proteins", "mathematician", "science",
+        "scientists", "biology", "autism", "genome", "matter", "moons",
+        "ocean", "mortality",
+    },
+    # Words with clearly positive connotation, from either corpus.
+    "positive_description": {
+        "happy", "interesting", "playful", "popular",
+        "innovative", "impressive", "great", "amazing", "useful", "powerful", "open",
+    },
+    # Words with clearly negative connotation. "sandbox" (technology) vs.
+    # "crimes" (negative_description) shows categories are assigned by
+    # meaning, not by which story they happen to appear in together.
+    "negative_description": {
+        "broken", "slow", "insecure", "banned", "restricted", "dead",
+        "terrifying", "crime", "crimes", "surveillance", "censorship",
+    },
+    # Other neutral descriptive adjectives that aren't inherently positive/negative.
     "descriptive": {
         "quick", "quickly", "quiet", "lazy", "brown", "full", "young", "curious",
     },

@@ -208,15 +208,25 @@ to extract directly.
 ## 12. Semantic Features
 
 Semantic features represent meaning. A small hand-written lexicon assigns
-known words to six categories: `action`, `animal`, `place`, `object`,
-`positive_description` (clearly positive words like "happy" or "popular"),
-and `descriptive` (other neutral descriptive words like "quick" or "lazy").
-Words are assigned by meaning rather than by suffix, so, for example, "mat"
-is counted as an `object` rather than a `place`. For each document, the
-project counts how many tokens belong to each category. For example,
-`Happy dogs run in the park` contributes one word to each of `action`,
-`animal`, `place`, and `positive_description`: `run`, `dogs`, `park`, and
-`happy`.
+known words to eleven categories, chosen to cover the vocabulary of _both_
+of this project's corpora rather than just one: `action`, `animal`,
+`place`, `object`, and `descriptive` come from `demo.csv`'s animal/nature
+sentences (e.g. "chased", "dog", "forest", "mat", "quiet"), while
+`technology`, `ai`, `business`, and `science` come from
+`hackernews_dataset.csv`'s tech news titles and text (e.g. "docker",
+"llm", "startup", "quantum"). `positive_description` (clearly positive
+words like "happy" or "innovative") and `negative_description` (clearly
+negative words like "broken" or "banned") are shared across both. Words are
+assigned by meaning rather than by suffix, so, for example, "mat" is
+counted as `object` rather than `place`, and "sandbox" is counted as
+`technology` even in a headline about committing "crimes"
+(`negative_description`). For each document, the project counts how many
+tokens belong to each category. For example, `Happy dogs run in the park`
+contributes one word to each of `action`, `animal`, `place`, and
+`positive_description`: `run`, `dogs`, `park`, and `happy`; while `An
+innovative AI startup uses Linux` contributes one word to each of
+`technology`, `ai`, `business`, and `positive_description`: `linux`, `ai`,
+`startup`, and `innovative`.
 
 The project also compares the overall semantic relatedness of documents with
 cosine similarity applied to their TF-IDF vectors:

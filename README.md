@@ -72,8 +72,10 @@ encoding, TF-IDF, n-grams) is written from scratch using only `numpy` and
 
 - `semantic_features.py` — lexical semantic features and document similarity
   - `semantic_category_features(tokens)` — counts words in the hand-written
-    categories `action`, `animal`, `place`, `object`, `positive_description`,
-    and `descriptive`
+    categories `action`, `animal`, `place`, `object`, `descriptive` (from
+    `demo.csv`'s animal/nature sentences), `technology`, `ai`, `business`,
+    `science` (from `hackernews_dataset.csv`'s tech news text), and the
+    shared `positive_description` / `negative_description` categories
   - `semantic_feature_matrix(documents)` — returns category counts with one
     row per document
   - `cosine_similarity_matrix(feature_matrix)` — returns pairwise cosine
