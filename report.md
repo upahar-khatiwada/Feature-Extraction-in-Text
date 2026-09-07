@@ -158,18 +158,52 @@ over the token list: for each position `i`, take the tokens from `i` to
 
 ## 11. Syntactic Features
 
-Syntax describes how words are arranged into a sentence. This project extracts
-a simple subject-verb-object (SVO) pattern from the POS-tagged tokens. It
-chooses the first noun or pronoun before the first verb as the subject, the
-first verb or auxiliary as the verb, and the first noun or pronoun after that
-verb as the object. It also produces a numeric feature row for each document:
-token count, noun count, verb count, and whether all three SVO elements were
-found.
+Syntax describes how words are arranged into a sentence. Rather than
+guessing sentence structure from raw token order, this project follows a
+small pipeline:
 
-For example, for `The cat chased the mouse`, the heuristic returns `cat` as
-the subject, `chased` as the verb, and `mouse` as the object. This is a
-position-based heuristic, not a full dependency parser, so its correctness
-depends on the rule-based POS tags and it cannot resolve every sentence form.
+```
+tokens -> POS tagging -> parsing -> parse tree -> extracted features
+```
+
+The "parsing" step is a hand-written recursive-descent chunker over a tiny
+context-free grammar built from the POS tags:
+
+```
+S  -> NP? VP
+NP -> PRON | DET? ADJ* NOUN+
+VP -> AUX? ADV? (VERB|AUX) NP? PP*
+PP -> PREP NP
+```
+
+It consumes POS-tagged tokens clause by clause (splitting on coordinating
+conjunctions) and builds an actual tree of `S`/`NP`/`VP`/`PP` nodes, rather
+than a flat list. From that tree, the project extracts:
+
+- **Subject / verb / object** — the head noun or pronoun of the first
+  clause's `NP` is the subject, the first verbal leaf in its `VP` is the
+  verb, and the head of the first `NP` found inside that `VP` (a direct
+  object, or a preposition's object if there's no direct object) is the
+  object.
+- **Noun / verb / adjective counts** — tag counts across the whole sentence.
+- **Clause count** — the number of `S` nodes the parser found, which
+  increases for coordinated sentences like "The cat sat... and looked...".
+- **Dependency relations** — simple head-dependent pairs read directly off
+  the tree: `det` (determiner -> noun), `amod` (adjective -> noun it
+  modifies), `nsubj` (subject noun -> verb), `dobj` (verb -> direct object
+  noun), and `pobj` (preposition -> its object noun). This approximates a
+  dependency parse using the constituency tree instead of parsing
+  dependencies directly.
+
+For example, for `The cat chased the mouse`, the parser builds an `S` node
+containing an `NP` (`the cat`) and a `VP` (`chased` + `NP` `the mouse`), from
+which it reads `cat` as the subject, `chased` as the verb, `mouse` as the
+object, and the dependency `dobj: chased -> mouse`. This is still a
+hand-written chunking parser, not a trained statistical or dependency
+parser, so its correctness depends on the rule-based POS tags and it cannot
+resolve every sentence form — but building a real tree (instead of a flat
+positional guess) makes clause counts and head-dependent relations possible
+to extract directly.
 
 ## 12. Semantic Features
 

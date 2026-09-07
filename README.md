@@ -54,13 +54,21 @@ encoding, TF-IDF, n-grams) is written from scratch using only `numpy` and
   - `one_hot_encode_categories(categories)` — generic one-hot encoder for
     any list of category labels, e.g. POS tags
 
-- `syntactic_features.py` — heuristic sentence-structure features
-  - `subject_verb_object(tagged_tokens)` — extracts simple subject, verb, and
-    object candidates using POS tags and their order in the sentence
-  - `syntactic_analysis(tagged_tokens)` — returns the candidate words plus
-    token, noun, verb, and complete-SVO counts for one document
-  - `syntactic_feature_matrix(tagged_documents)` — returns numeric syntactic
-    features with one row per document
+- `syntactic_features.py` — parse-tree-based sentence-structure features
+  - `build_parse_tree(tagged_tokens)` — a hand-written recursive-descent
+    parser that chunks POS-tagged tokens into a constituency tree (`NP`,
+    `VP`, `PP`, `S` clauses) using a small context-free grammar
+  - `render_tree(node)` — pretty-prints a parse tree as indented text
+  - `subject_verb_object(tagged_tokens)` — extracts subject, verb, and
+    object by reading them off the first clause of the parse tree, rather
+    than guessing from raw token order
+  - `extract_dependencies(tree)` — reads simple dependency relations
+    (`det`, `amod`, `nsubj`, `dobj`, `pobj`) off the tree
+  - `syntactic_analysis(tagged_tokens)` — returns subject/verb/object, token,
+    noun/verb/adjective, and clause counts, plus the dependency list, for
+    one document
+  - `syntactic_feature_matrix(tagged_documents)` — returns the numeric
+    syntactic features with one row per document
 
 - `semantic_features.py` — lexical semantic features and document similarity
   - `semantic_category_features(tokens)` — counts words in the hand-written
@@ -110,8 +118,9 @@ Requires only `numpy` and `pandas` to be installed.
 
 ## Limitations
 
-The syntactic extractor is a position-based SVO heuristic, not a dependency
-parser. The semantic features use a small hand-written lexicon, so words that
+The syntactic extractor is a hand-written chunking parser over a small
+context-free grammar, not a trained statistical parser, so it can't resolve
+every sentence structure. The semantic features use a small hand-written lexicon, so words that
 are not listed in a category receive no category count. TF-IDF cosine
 similarity measures shared weighted vocabulary rather than full contextual
 meaning.

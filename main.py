@@ -25,7 +25,13 @@ from linguistic_features import (
     morphological_analysis,
     lemmatize_word,
 )
-from syntactic_features import syntactic_analysis, syntactic_feature_matrix
+from syntactic_features import (
+    syntactic_analysis,
+    syntactic_feature_matrix,
+    build_parse_tree,
+    render_tree,
+    extract_dependencies,
+)
 from semantic_features import cosine_similarity_matrix, semantic_feature_matrix
 
 pd.set_option("display.width", 120)
@@ -99,8 +105,16 @@ tagged_doc0 = pos_tag(raw_tokens_doc0)
 for word, tag in tagged_doc0:
     print(f"{word:12s} -> {tag}")
 
+print("\n=== Parse Tree (Doc 0) ===")
+parse_tree_doc0 = build_parse_tree(tagged_doc0)
+print(render_tree(parse_tree_doc0))
+
+print("\n=== Dependencies (Doc 0) ===")
+for dependency in extract_dependencies(parse_tree_doc0):
+    print(f"{dependency['relation']:6s} {dependency['head']} -> {dependency['dependent']}")
+
 print("\n=== Syntactic Features (Doc 0) ===")
-print(syntactic_analysis(tagged_doc0))
+print(syntactic_analysis(tagged_doc0).drop(columns=["dependencies"]))
 
 tagged_documents = [
     pos_tag(tokenize(remove_punctuation_and_numbers(lowercase(doc))))

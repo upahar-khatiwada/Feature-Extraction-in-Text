@@ -1,4 +1,4 @@
-"""Scrape story text from Hacker News's public API (no account or key needed).
+"""Scrape story text from Hacker News's public API.
 
 Uses only the standard library and Hacker News's public Firebase-backed API:
 https://github.com/HackerNews/API. Output is a CSV with a single `text`
